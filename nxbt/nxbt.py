@@ -234,33 +234,31 @@ class Nxbt():
                 try:
                     msg = task_queue.get(timeout=5)
                 except queue.Empty:
-                    msg = None
-
-                if msg:
-                    if msg["command"] == NxbtCommands.CREATE_CONTROLLER:
-                        cm.create_controller(
-                            msg["arguments"]["controller_index"],
-                            msg["arguments"]["controller_type"],
-                            msg["arguments"]["adapter_path"],
-                            msg["arguments"]["colour_body"],
-                            msg["arguments"]["colour_buttons"],
-                            msg["arguments"]["reconnect_address"])
-                    elif msg["command"] == NxbtCommands.INPUT_MACRO:
-                        cm.input_macro(
-                            msg["arguments"]["controller_index"],
-                            msg["arguments"]["macro"],
-                            msg["arguments"]["macro_id"])
-                    elif msg["command"] == NxbtCommands.STOP_MACRO:
-                        cm.stop_macro(
-                            msg["arguments"]["controller_index"],
-                            msg["arguments"]["macro_id"])
-                    elif msg["command"] == NxbtCommands.CLEAR_MACROS:
-                        cm.clear_macros(
-                            msg["arguments"]["controller_index"])
-                    elif msg["command"] == NxbtCommands.REMOVE_CONTROLLER:
-                        index = msg["arguments"]["controller_index"]
-                        cm.clear_macros(index)
-                        cm.remove_controller(index)
+                    continue
+                if msg["command"] == NxbtCommands.CREATE_CONTROLLER:
+                    cm.create_controller(
+                        msg["arguments"]["controller_index"],
+                        msg["arguments"]["controller_type"],
+                        msg["arguments"]["adapter_path"],
+                        msg["arguments"]["colour_body"],
+                        msg["arguments"]["colour_buttons"],
+                        msg["arguments"]["reconnect_address"])
+                elif msg["command"] == NxbtCommands.INPUT_MACRO:
+                    cm.input_macro(
+                        msg["arguments"]["controller_index"],
+                        msg["arguments"]["macro"],
+                        msg["arguments"]["macro_id"])
+                elif msg["command"] == NxbtCommands.STOP_MACRO:
+                    cm.stop_macro(
+                        msg["arguments"]["controller_index"],
+                        msg["arguments"]["macro_id"])
+                elif msg["command"] == NxbtCommands.CLEAR_MACROS:
+                    cm.clear_macros(
+                        msg["arguments"]["controller_index"])
+                elif msg["command"] == NxbtCommands.REMOVE_CONTROLLER:
+                    index = msg["arguments"]["controller_index"]
+                    cm.clear_macros(index)
+                    cm.remove_controller(index)
 
         finally:
             cm.shutdown()

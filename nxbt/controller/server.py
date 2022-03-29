@@ -10,7 +10,7 @@ from threading import Thread
 import statistics as stat
 
 from .controller import Controller, ControllerTypes
-from ..bluez import BlueZ, find_devices_by_alias
+from ..bluez import BlueZ
 from .protocol import ControllerProtocol
 from .input import InputParser
 from .utils import format_msg_controller, format_msg_switch
@@ -22,7 +22,10 @@ class ControllerServer():
                  state=None, task_queue=None, lock=None, colour_body=None,
                  colour_buttons=None):
 
+        self._crw_running = False
+        self.switch_address = None
         self.logger = logging.getLogger('nxbt')
+        self.logger.setLevel(logging.INFO)
         # Cache logging level to increase performance on checks
         self.logger_level = self.logger.level
 
@@ -112,17 +115,13 @@ class ControllerServer():
                 self.state["state"] = "crashed"
                 self.state["errors"] = traceback.format_exc()
                 return self.state
-            except Exception as e:
-                self.logger.debug("Error during graceful shutdown:")
-                self.logger.debug(traceback.format_exc())
+            except Exception:
+                self.logger.error("Error during graceful shutdown: %s", traceback.format_exc())
 
     def mainloop(self, itr, ctrl):
 
         duration_start = time.perf_counter()
         while True:
-            # Start timing command processing
-            timer_start = time.perf_counter()
-
             # Attempt to get output from Switch
             try:
                 reply = itr.recv(50)
@@ -377,7 +376,7 @@ class ControllerServer():
                 self.bt.set_class("0x02508")
 
                 self._crw_running = True
-                crw = Thread(target = self.connection_reset_watchdog)
+                crw = Thread(target=self.connection_reset_watchdog)
                 crw.start()
 
                 itr, itr_address = s_itr.accept()
@@ -434,8 +433,8 @@ class ControllerServer():
                         time.sleep(1/15)
                 
                 break
-            except OSError as e:
-                self.logger.debug(e)
+            except OSError:
+                self.logger.error(traceback.format_exc())
 
         self.input.exited_grip_order_menu = False
 

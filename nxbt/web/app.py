@@ -1,7 +1,7 @@
 import json
 import os
 from threading import RLock
-import time
+
 from socket import gethostname
 
 from .cert import generate_cert
@@ -25,7 +25,6 @@ if not os.path.isfile(secrets_path):
     with open(secrets_path, "w") as f:
         f.write(secret_key)
 else:
-    secret_key = None
     with open(secrets_path, "r") as f:
         secret_key = f.read()
 app.config['SECRET_KEY'] = secret_key
@@ -59,31 +58,27 @@ def on_state():
 
 @sio.on('disconnect')
 def on_disconnect():
-    print("Disconnected")
     with user_info_lock:
         try:
-            index = USER_INFO[request.sid]["controller_index"]
-            nxbt.remove_controller(index)
+            controller_index = USER_INFO[request.sid]["controller_index"]
+            nxbt.remove_controller(controller_index)
         except KeyError:
             pass
 
 
 @sio.on('shutdown')
-def on_shutdown(index):
-    nxbt.remove_controller(index)
+def on_shutdown(controller_index):
+    nxbt.remove_controller(controller_index)
 
 
 @sio.on('create_pro_controller')
 def on_create_controller():
-    print("Create Controller")
-
     try:
         reconnect_addresses = nxbt.get_switch_addresses()
-        index = nxbt.create_controller(PRO_CONTROLLER, reconnect_address=reconnect_addresses)
+        controller_index = nxbt.create_controller(PRO_CONTROLLER, reconnect_address=reconnect_addresses)
 
         with user_info_lock:
-            USER_INFO[request.sid]["controller_index"] = index
-
+            USER_INFO[request.sid]["controller_index"] = controller_index
         emit('create_pro_controller', index)
     except Exception as e:
         emit('error', str(e))
@@ -91,19 +86,18 @@ def on_create_controller():
 
 @sio.on('input')
 def handle_input(message):
-    # print("Webapp Input", time.perf_counter())
     message = json.loads(message)
-    index = message[0]
+    controller_index = message[0]
     input_packet = message[1]
-    nxbt.set_controller_input(index, input_packet)
+    nxbt.set_controller_input(controller_index, input_packet)
 
 
 @sio.on('macro')
 def handle_macro(message):
     message = json.loads(message)
-    index = message[0]
+    controller_index = message[0]
     macro = message[1]
-    nxbt.macro(index, macro)
+    nxbt.macro(controller_index, macro)
 
 
 def start_web_app(ip='0.0.0.0', port=8000, usessl=False, cert_path=None):

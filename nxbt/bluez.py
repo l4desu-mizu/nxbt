@@ -892,7 +892,7 @@ class BlueZ():
         :param address: The Bluetooth MAC address
         :type address: string
         :return: The path to the D-Bus object or None
-        :rtype: string or None
+        :rtype: List
         """
 
         devices = find_objects(
