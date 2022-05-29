@@ -193,24 +193,21 @@ let PRO_CONTROLLER_DISPLAY = {
 let socket = io();
 
 // Request to the state at 1Hz
-socket.emit('state');
+socket.emit('state', (state)=>STATE=state);
 let stateInterval = setInterval(function() {
-    socket.emit('state');
+    socket.emit('state', (state)=>STATE=state);
 }, 1000);
 
-socket.on('state', function(state) {
-    STATE = state;
-});
 
 socket.on('connect', function() {
     console.log("Connected");
 });
 
 checkForLoadInterval = false;
-socket.on('create_pro_controller', function(index) {
+function register_controller(index) {
     NXBT_CONTROLLER_INDEX = index;
     checkForLoadInterval = setInterval(checkForLoad, 1000);
-});
+};
 
 socket.on('error', function(errorMessage) {
     displayError(errorMessage);
@@ -381,7 +378,7 @@ function createProController() {
     HTML_CONTROLLER_SELECTION.classList.add('hidden');
     HTML_LOADER.classList.remove('hidden');
 
-    socket.emit('create_pro_controller');
+    socket.emit('create_pro_controller', register_controller);
 }
 
 function shutdownController() {
@@ -391,7 +388,7 @@ function shutdownController() {
 }
 
 function recreateProController() {
-    socket.emit('create_pro_controller');
+    socket.emit('create_pro_controller', register_controller);
 }
 
 function restartController() {
