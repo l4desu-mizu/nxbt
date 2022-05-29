@@ -7,7 +7,7 @@ from socket import gethostname
 from .cert import generate_cert
 from ..nxbt import Nxbt, PRO_CONTROLLER
 from flask import Flask, render_template, request
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO
 import eventlet
 
 
@@ -53,7 +53,7 @@ def on_state():
     state = {}
     for controller in state_proxy.keys():
         state[controller] = state_proxy[controller].copy()
-    emit('state', state)
+    return state
 
 
 @sio.on('disconnect')
@@ -79,9 +79,9 @@ def on_create_controller():
 
         with user_info_lock:
             USER_INFO[request.sid]["controller_index"] = controller_index
-        emit('create_pro_controller', index)
+        return controller_index
     except Exception as e:
-        emit('error', str(e))
+        return e
 
 
 @sio.on('input')
