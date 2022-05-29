@@ -48,7 +48,7 @@ def on_connect():
 
 
 @sio.on('state')
-def on_state():
+def on_state(*_params):
     state_proxy = nxbt.state.copy()
     state = {}
     for controller in state_proxy.keys():
@@ -57,7 +57,7 @@ def on_state():
 
 
 @sio.on('disconnect')
-def on_disconnect():
+def on_disconnect(*_params):
     with user_info_lock:
         try:
             controller_index = USER_INFO[request.sid]["controller_index"]
@@ -72,7 +72,7 @@ def on_shutdown(controller_index):
 
 
 @sio.on('create_pro_controller')
-def on_create_controller():
+def on_create_controller(*_params):
     try:
         reconnect_addresses = nxbt.get_switch_addresses()
         controller_index = nxbt.create_controller(PRO_CONTROLLER, reconnect_address=reconnect_addresses)
