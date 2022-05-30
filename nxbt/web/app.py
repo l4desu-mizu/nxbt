@@ -9,7 +9,9 @@ from ..nxbt import Nxbt, PRO_CONTROLLER
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO
 import eventlet
+import logging
 
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__,
             static_url_path='',
@@ -89,7 +91,10 @@ def handle_input(message):
     message = json.loads(message)
     controller_index = message[0]
     input_packet = message[1]
-    nxbt.set_controller_input(controller_index, input_packet)
+    try:
+        nxbt.set_controller_input(controller_index, input_packet)
+    except ValueError as e:
+        logger.warning(e)
 
 
 @sio.on('macro')
