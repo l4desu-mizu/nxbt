@@ -1,4 +1,3 @@
-import json
 import os
 from threading import RLock
 
@@ -88,7 +87,6 @@ def on_create_controller(*_params):
 
 @sio.on('input')
 def handle_input(message):
-    message = json.loads(message)
     controller_index = message[0]
     input_packet = message[1]
     try:
@@ -99,7 +97,6 @@ def handle_input(message):
 
 @sio.on('macro')
 def handle_macro(message):
-    message = json.loads(message)
     controller_index = message[0]
     macro = message[1]
     nxbt.macro(controller_index, macro)

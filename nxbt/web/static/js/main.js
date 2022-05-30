@@ -614,7 +614,7 @@ function eventLoop() {
     // We can do this since NXBT will hold the previously sent value
     // until we send it a new one.
     if (JSON.stringify(INPUT_PACKET) !== JSON.stringify(INPUT_PACKET_OLD)) {
-        socket.emit('input', JSON.stringify([NXBT_CONTROLLER_INDEX, INPUT_PACKET]));
+        socket.emit('input', [NXBT_CONTROLLER_INDEX, INPUT_PACKET]);
         INPUT_PACKET_OLD = JSON.parse(JSON.stringify(INPUT_PACKET));
     }
 
